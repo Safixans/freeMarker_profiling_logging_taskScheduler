@@ -6,7 +6,9 @@ import lesson9_9_assignment.uz.pdp.service.MailingService;
 import lesson9_9_assignment.uz.pdp.service.TodoService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.util.List;
 
@@ -33,6 +35,16 @@ public class TodoController {
         return todoService.getAll();
     }
 
+    @GetMapping("/all-web")
+    public ModelAndView getAllWithHtmlPage(ModelAndView modelAndView) {
+        log.info("All tasks !!!! ");
+        List<TODO> entities = todoService.getAll();
+        modelAndView.setViewName("todoWeb");
+        modelAndView.addObject("todos", entities);
+
+        return modelAndView;
+    }
+
     @PostMapping("/create")
     public ResponseEntity<TODO> create(@RequestBody TodoDTO todoDTO) {
         log.info("the Todo task is created ... {}", todoDTO);
@@ -55,6 +67,7 @@ public class TodoController {
         log.info("task by specified id: {}", id);
         return todoService.getById(id);
     }
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteById(@PathVariable Long id) {
         return todoService.deleteTodoById(id);

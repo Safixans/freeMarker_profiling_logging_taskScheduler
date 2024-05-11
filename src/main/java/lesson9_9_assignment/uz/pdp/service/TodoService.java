@@ -2,6 +2,7 @@ package lesson9_9_assignment.uz.pdp.service;
 
 import lesson9_9_assignment.uz.pdp.dtos.TodoDTO;
 import lesson9_9_assignment.uz.pdp.entity.TODO;
+import lesson9_9_assignment.uz.pdp.entity.UserEntity;
 import lesson9_9_assignment.uz.pdp.exceptions.TodoNotFoundException;
 import lesson9_9_assignment.uz.pdp.repositroy.TodoRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -19,13 +20,17 @@ public class TodoService {
     private final RegisterService registerService;
 
 
-
     public TodoService(TodoRepository todoRepository, RegisterService registerService) {
         this.todoRepository = todoRepository;
         this.registerService = registerService;
     }
 
     public ResponseEntity<TODO> create(TodoDTO todoDTO) {
+        Optional<UserEntity> byTitle = todoRepository.findByTitle(todoDTO.getTitle());
+        if (byTitle.isPresent()) {
+            log.error("cannot be duplicate the same action task : {}", todoDTO.getTitle());
+        }
+
         TODO entity = TODO
                 .builder()
                 .title(todoDTO.getTitle())
@@ -41,7 +46,7 @@ public class TodoService {
         Optional<TODO> optionalTodo = todoRepository.findById(id);
         if (optionalTodo.isPresent()) {
             TODO todo = optionalTodo.get();
-                    TODO.builder()
+            TODO.builder()
                     .title(todoDTO.getTitle())
                     .description(todoDTO.getDescription())
                     .completed(todoDTO.isCompleted())
@@ -64,14 +69,15 @@ public class TodoService {
                 .orElseThrow(
                         () -> new TodoNotFoundException("TOdo not found by given ID {}" + id));
     }
-    public ResponseEntity<Void> deleteTodoById(Long id){
+
+    public ResponseEntity<Void> deleteTodoById(Long id) {
         Optional<TODO> check = todoRepository.findById(id);
         if (check.isPresent()) {
             log.info("Todo is available on the list and in the process of deleting from it");
-        todoRepository.deleteById(id);
+            todoRepository.deleteById(id);
             log.info("The task is deleted Successfully!");
-        }else {
-            log.error("Todo by given id: "+id+"  is not available on the list of TODO`s");
+        } else {
+            log.error("Todo by given id: " + id + "  is not available on the list of TODO`s");
         }
 
         return ResponseEntity.notFound().build();

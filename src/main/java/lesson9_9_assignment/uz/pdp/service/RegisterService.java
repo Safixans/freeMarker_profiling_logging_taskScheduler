@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -29,6 +30,13 @@ public class RegisterService {
 
     public void saveUser(UserDTO userDTO) {
         log.info("Received user registration request: {}", userDTO);
+        Optional<UserEntity> byEmailAndPassword = userRepository
+                .findByEmailAndPassword(userDTO.email(), userDTO.password());
+
+        if (byEmailAndPassword.isPresent()) {
+            log.error("\"email address or password is already taken !!!\"");
+            log.warn("Please choose another one ) ");
+        }
 
         UserEntity entity = UserEntity.builder()
                 .username(userDTO.username())

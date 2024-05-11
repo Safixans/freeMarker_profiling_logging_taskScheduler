@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Todo Application</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+  <h1>Todo Application</h1>
+  <div class="row mt-3">
+    <div class="col-md-6">
+      <h2>Create Todo</h2>
+      <form id="createForm">
+        <div class="form-group">
+          <label for="title">Title</label>
+          <input type="text" class="form-control" id="title" name="title" required>
+        </div>
+        <div class="form-group">
+          <label for="description">Description</label>
+          <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+        </div>
+        <div class="form-group form-check">
+          <input type="checkbox" class="form-check-input" id="completed" name="completed">
+          <label class="form-check-label" for="completed">Completed</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Create</button>
+      </form>
+    </div>
+    <div class="col-md-6">
+      <h2>All Todos</h2>
+      <ul id="todoList" class="list-group">
+        <!-- Todo list will be appended here dynamically -->
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script>
+  $(document).ready(function () {
+    $('#createForm').submit(function (event) {
+      event.preventDefault(); // Prevent default form submission
+
+      // Prepare form data
+      var formData = {
+        title: $('#title').val(),
+        description: $('#description').val(),
+        completed: $('#completed').prop('checked')
+      };
+
+      // Send AJAX request to create todo
+      $.ajax({
+        type: 'POST',
+        url: '/todo/create',
+        contentType: 'application/json',
+        data: JSON.stringify(formData),
+        success: function (response) {
+          console.log('Todo created successfully:', response);
+          fetchTodos(); // Fetch updated todo list
+        },
+        error: function (error) {
+          console.error('Error creating todo:', error);
+        }
+      });
+    });
+
+    // Function to update todo
+    function updateTodo() {
+      var id = prompt('Enter the ID of the todo to update:');
+      if (id) {
+        // Prompt for updated values
+        var updatedTitle = prompt('Enter updated title:');
+        var updatedDescription = prompt('Enter updated description:');
+        var updatedCompleted = confirm('Is the todo completed?');
+
+        // Send AJAX request to update todo
+        $.ajax({
+          type: 'POST',
+          url: '/todo/update/' + id,
+          contentType: 'application/json',
+          data: JSON.stringify({
+            title: updatedTitle,
+            description: updatedDescription,
+            completed: updatedCompleted
+          }),
+          success: function (response) {
+            console.log('Todo updated successfully:', response);
+            fetchTodos(); // Fetch updated todo list
+          },
+          error: function (error) {
+            console.error('Error updating todo:', error);
+          }
+        });
+      }
+    }
+
+    // Function to delete todo
+    function deleteTodo() {
+      var id = prompt('Enter the ID of the todo to delete:');
+      if (id) {
+        // Send AJAX request to delete todo
+        $.ajax({
+          type: 'DELETE',
+          url: '/todo/delete/' + id,
+          success: function () {
+            console.log('Todo deleted successfully');
+            fetchTodos(); // Fetch updated todo list
+          },
+          error: function (error) {
+            console.error('Error deleting todo:', error);
+          }
+        });
+      }
+    }
+
+    // Fetch All Todos
+    function fetchTodos() {
+      $.ajax({
+        type: 'GET',
+        url: '/todo/all',
+        success: function (response) {
+          $('#todoList').empty();
+          response.forEach(function (todo) {
+            var listItem = '<li class="list-group-item">' +
+                    '<h5>' + todo.title + '</h5>' +
+                    '<p>' + todo.description + '</p>' +
+                    '<p>Completed: ' + todo.completed + '</p>' +
+                    // Add update and delete buttons
+                    '<button class="btn btn-info" onclick="todo/update/{id}">Update</button> ' +
+                    '<button class="btn btn-danger" onclick="todo/delete/{id}">Delete</button>' +
+                    '</li>';
+            $('#todoList').append(listItem);
+          });
+        },
+        error: function (error) {
+          console.error('Error fetching todos:', error);
+        }
+      });
+    }
+
+    // Initial Fetch
+    fetchTodos();
+  });
+</script>
+</body>
+</html>
