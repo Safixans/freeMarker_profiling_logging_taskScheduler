@@ -1,0 +1,53 @@
+spring:
+  profiles:
+    active: prod
+---
+spring:
+  config:
+    activate:
+      on-profile: test
+  datasource:
+    url: 'jdbc:h2:mem:~'
+    username: postgres
+    password: 123
+    driver-class-name: org.h2.Driver
+  name: test-YAML
+  environment:
+    testing:
+      enabled: false
+  servers:
+    - www.abc.test.com
+    - www.xyz.test.com
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: 'jdbc:postgresql://localhost:5433/profiling'
+    username: postgres
+    password: 123
+    driver-class-name: org.postgresql.Driver
+  name: prod-YAML
+  environment:
+    production:
+      enabled: true
+  servers:
+    - www.abc.com
+    - www.xyz.com
+---
+spring:
+  mail:
+    host: 'sandbox.smtp.mailtrap.io' ##smpt.gmail.com
+    port: 587
+    username: b6c12db1ef7060 # your own gmail username
+    password: 9b8fde923d03f9 # not your gmail`s password you have to create a password to gmail by myaccounts.com then it genereates to you
+    properties:
+      smtp:
+        auth: true
+        starttls:
+          enable:  true
+  freemarker:
+    template-loader-path: 'classpath:/templates'
+
+
