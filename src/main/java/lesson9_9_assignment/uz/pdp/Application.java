@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.io.IOException;
+import java.util.Spliterator;
 
 @SpringBootApplication
 @EnableAsync
@@ -16,7 +17,9 @@ public class Application {
 
     public static void main(String[] args) {
 
+
         SpringApplication.run(Application.class, args);
+
 
     }
 
